@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<style>
+		  body {
+			margin: 0px;
+			padding: 0px;
+		  }
+		  canvas {
+			border: 1px solid #9C9898;
+		  }
+		</style>
+		<script type="text/javascript" src="js/kineticjs/kinetic-v3.10.0.js"></script>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script type="text/javascript">
+		
+		var COLOR_CONTOUR = "#D8EDF2";
+
+		window.onload = function() {
+			var stage = new Kinetic.Stage({
+				container: "container",
+				width: 960,
+				height: 480
+			});
+			var layer = new Kinetic.Layer();
+			var group = new Kinetic.Group();
+			var colors = ["red", "orange", "yellow", "lightgreen", "cyan", "lightblue", "purple"];
+
+			for(var n = 0; n < colors.length; n++) {
+				// anonymous function to induce scope
+				(function() {
+					var i = n;
+					var rnd = Math.random();
+					var cloud = new Kinetic.Shape({
+						drawFunc: function() {
+							var x0 = i * 50 + 50 * rnd;
+							var y0 = i * 32 + 32 * rnd;
+							var context = this.getContext();
+							context.beginPath();
+							context.moveTo(x0 + 140, y0 + 200);
+							context.quadraticCurveTo(x0 + 135, y0 + 155, x0 + 180, y0 + 150);
+							context.quadraticCurveTo(x0 + 220, y0 + 110, x0 + 260, y0 + 130);
+							context.quadraticCurveTo(x0 + 300, y0 + 100, x0 + 340, y0 + 130);
+							context.quadraticCurveTo(x0 + 390, y0 + 125, x0 + 400, y0 + 170);
+							context.quadraticCurveTo(x0 + 440, y0 + 190, x0 + 420, y0 + 230);
+							context.quadraticCurveTo(x0 + 420, y0 + 270, x0 + 380, y0 + 270);
+							context.quadraticCurveTo(x0 + 340, y0 + 290, x0 + 300, y0 + 270);
+							context.quadraticCurveTo(x0 + 260, y0 + 290, x0 + 220, y0 + 270);
+							context.quadraticCurveTo(x0 + 185, y0 + 275, x0 + 170, y0 + 250);
+							context.quadraticCurveTo(x0 + 130, y0 + 240, x0 + 140, y0 + 200);
+							context.closePath();
+							this.fill();
+							this.stroke();
+					  	},
+					  	name: colors[i],
+						fill: colors[i],
+						stroke: COLOR_CONTOUR,
+						strokeWidth: 4, 
+						scale: [1 + 0.25 * rnd, 1 + 0.25 * rnd], 
+						draggable: true
+					});
+
+					group.add(cloud);
+				})();
+			}
+
+			// add the triangle shape to the layer
+			layer.add(group);
+
+			// add the layer to the stage
+			stage.add(layer);
+		};
+
+		</script>
+	</body>
+</html>
