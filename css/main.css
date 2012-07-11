@@ -1,0 +1,37 @@
+body {
+	margin: 0px;
+	padding: 0px;
+}
+canvas {
+	border: 1px solid #9C9898;
+}
+
+#container {
+	background-image: url('http://www.html5canvastutorials.com/demos/assets/blue-background.jpg');
+	display: inline-block;
+	overflow: hidden;
+	height: 640px;
+	width: 900px;
+	position:absolute;
+	left:10px;
+	top:10px;
+	border:2px solid black;
+}
+
+
+input{
+	width:100px;
+}
+
+#dev_messages{
+	position: absolute;
+	top:10px;
+	left:920px;
+	border:2px solid gray;
+}
+
+#coords{
+	border:1px solid red;
+	width:60px;
+	height:20px;
+}
