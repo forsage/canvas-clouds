@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<style>
+			body {
+				margin: 0px;
+				padding: 0px;
+			}
+			canvas {
+				border: 1px solid #9C9898;
+			}
+		</style>
+		<script type="text/javascript" src="js/lib/kinetic-v3.10.0.js"></script>
+		<script>
+			function updateDottedLines(layer) {
+				var q = layer.quad;
+
+				var quadLine = layer.get('#quadLine')[0];
+
+				var quadPoints = [];
+        for (anchor in q) {
+          quadPoints.push(q[anchor].attrs.x);
+          quadPoints.push(q[anchor].attrs.y);
+        }
+
+        quadLine.setPoints(quadPoints);
+			}
+			function buildAnchor(layer, x, y) {
+				var anchor = new Kinetic.Circle({
+					x: x,
+					y: y,
+					radius: 8,
+					stroke: "#666",
+					fill: "#ddd",
+					strokeWidth: 2,
+					draggable: true
+				});
+
+				// add hover styling
+				anchor.on("mouseover", function() {
+					document.body.style.cursor = "pointer";
+					this.setStrokeWidth(4);
+					layer.draw();
+				});
+				anchor.on("mouseout", function() {
+					document.body.style.cursor = "default";
+					this.setStrokeWidth(2);
+					layer.draw();
+				});
+
+				layer.add(anchor);
+				return anchor;
+			}
+			function drawCurves() {
+				var context = this.getContext();
+				var layer = this.getLayer();
+
+				///////////////////////////////
+				// draw quad
+				///////////////////////////////
+				var quad = layer.quad;
+				var bezier = layer.bezier;
+
+				// draw quad
+				context.beginPath();
+        var ctrlX = 0;
+        var ctrlY = 0;
+        var endX = 0;
+        var endY = 0;
+        for (anchor in quad) {
+          if (anchor == 0) {
+            context.moveTo(quad[anchor].attrs.x, quad[anchor].attrs.y);
+          } else if ((anchor % 2) == 0) {
+            endX = quad[anchor].attrs.x;
+            endY = quad[anchor].attrs.y;
+            context.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+          } else {
+            ctrlX = quad[anchor].attrs.x;
+            ctrlY = quad[anchor].attrs.y;
+          }
+        }
+				context.strokeStyle = "red";
+				context.lineWidth = 4;
+				context.stroke();
+			}
+
+			window.onload = function() {
+				var stage = new Kinetic.Stage({
+					container: "container",
+					width: 960,
+					height: 480
+				});
+
+				var layer = new Kinetic.Layer({
+					drawFunc: drawCurves
+				});
+
+				var quadLine = new Kinetic.Line({
+					dashArray: [10, 10, 0, 10],
+					strokeWidth: 3,
+					stroke: "black",
+					lineCap: "round",
+					id: "quadLine",
+					alpha: 0.3
+				});
+
+				// add dotted line connectors
+				layer.add(quadLine);
+
+				/*
+				 * update the dotted line points before
+				 * drawing the layer
+				 */
+				layer.beforeDraw(function() {
+					updateDottedLines(layer);
+				});
+				/*
+				 * add custom property curve objects to layer so that
+				 * they can be modified by reference
+				 */
+				layer.quad = [
+          buildAnchor(layer, 60, 30),
+				  buildAnchor(layer, 240, 110),
+				  buildAnchor(layer, 80, 160)
+        ];
+
+				stage.on("mouseout", function() {
+					layer.draw();
+				});
+
+				stage.add(layer);
+
+        document.getElementById('addCurve').addEventListener('click', function() {
+          layer.quad.push(buildAnchor(layer, 960, 0));
+          layer.quad.push(buildAnchor(layer, 960, 480));
+          layer.draw();
+        }, false);
+
+        document.getElementById('removeCurve').addEventListener('click', function() {
+          layer.remove(layer.quad.pop());
+          layer.remove(layer.quad.pop());
+          layer.draw();
+        }, false);
+
+        document.getElementById('getCurvePoints').addEventListener('click', function() {
+          var strCoords = "";
+          for (anchor in layer.quad) {
+            if (anchor == 0) {
+              strCoords += "(";
+            } else if (anchor < layer.quad.length) {
+              strCoords += ", ";
+            }
+            strCoords += "{x: " + layer.quad[anchor].attrs.x + ", y: " + layer.quad[anchor].attrs.y + "}";
+            if (anchor == layer.quad.length - 1) {
+              strCoords += ")";
+            }
+          }
+          document.getElementById('curvePoints').value = strCoords;
+        }, false);
+			};
+
+		</script>
+	</head>
+	<body onmousedown="return false;">
+		<div id="container"></div>
+    <input type="button" id="addCurve" value="Add curve"/>
+    <input type="button" id="removeCurve" value="Remove curve"/>
+    <input type="button" id="getCurvePoints" value="Get curve points"/>
+    <br/>
+    <textarea id="curvePoints" cols="100" rows="15"></textarea>
+	</body>
+</html>
