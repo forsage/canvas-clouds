@@ -1,23 +1,37 @@
+
  /*
 * Global variables
 */
-
   
-	var	sebesseg_oszto		= 2;
-	var	irany_szorzo		= 1;
-	var CLOUD_COLOR_CONTOUR	= "#D8EDF2";
-	var CLOUD_COLOR_FILL	= "lightgray";
-	var STAGE_WIDTH			= 900;
-	var STAGE_HEIGHT		= 640;
+	// Bubble parameters
+	DEFAULT_BUBBLE_X		= 150;
+	DEFAULT_BUBBLE_Y		= 150;
+	DEFAULT_BUBBLE_RADIUS	= 30;
 
+	// Layers, stages
 	var layerCloud;		// normal cloud layer
 	var layerBgCloud;	// background layer
-
-	var cloudArr	= new  Array();
-	var cloudCount	= 3;
 	var stage;
 
+	var STAGE_WIDTH			= 900;
+	var STAGE_HEIGHT		= 640;
+	var CLOUD_COLOR_CONTOUR	= "#D8EDF2";
+	var CLOUD_COLOR_FILL	= "lightgray";
 
+	// Cloud parameters
+	var cloudArr	= new  Array();
+	var cloudCount	= 3;
+
+	
+	// development (temporary) parameters
+	var	sebesseg_oszto		= 2;
+	var	irany_szorzo		= 1;
+	
+
+	
+/*
+*	the main function
+*/
 window.onload = function() {
 	
 	stage = new Kinetic.Stage({
@@ -39,40 +53,35 @@ window.onload = function() {
 
 
 /*
-*	first time cloud gnerating
+*	first time cloud generating
 */
 function initClouds(){
 
-	// a felho darabszambol es kepernyo meretbol kiszamoljuk a felhok X koordinatajat es letaroljuk a cloudArr-ban
+	/*	initialize the could array 
+	*		This iteration generates the next values:
+	*		- random alpha, random color, random y offset
+	*		- x coordinate, so that the clouds will be in equal distance inside the canvas (stage)
+	*/
 	for (var i=0;i<cloudCount;i++){
 		var item  = new  Array();
-		item["x"]		= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position
-		item["y"]		= Math.round( (Math.random()-0.5)*40 );
-		item["color"]	= get_random_color();		// generate color
-		item["alpha"]	= Math.random();			// alpha
-		item["scaleRnd"]	= (Math.random()-0.5)/2;	// random scaling - maximum +-25%
+		item["x"]		= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position (equal cloud distance)
+		item["y"]		= Math.round( (Math.random()-0.5)*40 );	// random y position (offset)
+		item["color"]	= get_random_color();					// generate random color
+		item["alpha"]	= Math.random();						// alpha
+		item["scaleRnd"]	= (Math.random()-0.5)/2;			// random scaling - maximum +-25%
 
 		cloudArr[i] =  item;
 	}
 
 	
-	// generating clouds from cloudArr
+	// generate (draw) clouds from cloudArr
 	for(var i=0;i<cloudArr.length;i++){
 
-		var cloud = drawCloudShape( cloudArr[i]["x"], cloudArr[i]["y"], cloudArr[i]["color"], cloudArr[i]["alpha"] );
+		var cloud = shapeCreateCloud( cloudArr[i]["x"], cloudArr[i]["y"], cloudArr[i]["color"], cloudArr[i]["alpha"] );
+
+		shapeAddCloudShadow( cloud );
 		
-		// arnyek utolagos hozzadobasa minden egyes felhõhöz
-		// Megnézni más offsettel is!!
-		cloud.setShadow({
-			color: 'black',
-			blur: 10,
-			offset: [10, 10],
-			alpha: 0.5
-		});
-
 		layerCloud.add(cloud);
-
-//		$("#message").text( $("#message").text()+' - '+ cloudArr[i][0] );
 
 		// felho "felfujasa" letrehozaskor
 		cloud.transitionTo({
@@ -105,29 +114,21 @@ function test_kinectanim(){
 	var centerX = stage.getWidth();
 
 	var CloudX	= 250;
-	var d = new Date;
-	var ddiff	= d.getTime();
-//	alert(ddiff);
+	var animStartDateFPS	= new Date;
+	var animStartTimeFPS	= animStartDateFPS.getTime();
 	var frameCount	=	0;
 	var eltolas	=0;
 	var	irany	=1;
 
-	var hexagon = new Kinetic.RegularPolygon({
-		x: stage.getWidth() / 2,
-		y: stage.getHeight() / 2,
-		sides: 16,
-		radius: 30,
-		fill: "yellow",
-		stroke: "black",
-		strokeWidth: 2
-	});
-	layerBgCloud.add(hexagon);
+	bubble = shapeCreateBubble();
+	layerBgCloud.add(bubble);
 
 	
 	// Kinect animation tesztelése 
 	stage.onFrame(function(frame) {
 		frameCount++;
-		var d2 = new Date;
+		var currDateFPS = new Date;
+		var currTimeFPS	= currDateFPS.getTime();
 
 		if ((frameCount%sebesseg_oszto)==0){
 			if (CloudX > 300) {
@@ -138,12 +139,12 @@ function test_kinectanim(){
 			CloudX = CloudX+irany*irany_szorzo;
 		}
 
-		hexagon.setX(CloudX);
+		bubble.setX(CloudX);
 		$("#c1").val(CloudX + ' | i' +irany_szorzo + ' | s' + sebesseg_oszto);
-
-		// inditas ota frame-ek szama / eltelt masodpercek
-		$("#c2").val( 'FPS: ' +  Math.round(frameCount/(d2.getTime()-ddiff)*1000 ) );       // durva FPS becslés
 		layerBgCloud.draw();
+
+		// simple FPS calculator
+		$("#FPS").val( 'FPS: ' +  Math.round(frameCount/(currTimeFPS-animStartTimeFPS)*1000 ) );       // durva FPS becslés
 	});
 
 	stage.start();
@@ -151,7 +152,9 @@ function test_kinectanim(){
 
 
 	  
-	  
+/*
+*	random color generator for testing
+*/	  
 function get_random_color() {
 	var letters = '0123456789ABCDEF'.split('');
 	var color = '#';

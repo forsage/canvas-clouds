@@ -7,7 +7,25 @@ canvas {
 }
 
 #container {
-	background-image: url('http://www.html5canvastutorials.com/demos/assets/blue-background.jpg');
+	/* Gradient background*/
+	background-image: linear-gradient(bottom, #D1D8F2 0%, #B8D4FC 69%, #6882D7 100%);
+	background-image: -o-linear-gradient(bottom, #D1D8F2 0%, #B8D4FC 69%, #6882D7 100%);
+	background-image: -moz-linear-gradient(bottom, #D1D8F2 0%, #B8D4FC 69%, #6882D7 100%);
+	background-image: -webkit-linear-gradient(bottom, #D1D8F2 0%, #B8D4FC 69%, #6882D7 100%);
+	background-image: -ms-linear-gradient(bottom, #D1D8F2 0%, #B8D4FC 69%, #6882D7 100%);
+
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, #D1D8F2),
+		color-stop(0.69, #B8D4FC),
+		color-stop(1, #6882D7)
+	);
+	/* End of Gradient background*/
+
+
+	background-color:#E3EEFF;
 	display: inline-block;
 	overflow: hidden;
 	height: 640px;
@@ -23,15 +41,21 @@ input{
 	width:100px;
 }
 
-#dev_messages{
+#dev{
 	position: absolute;
 	top:10px;
 	left:920px;
+	width: 200px;
+	height:640px;
+}
+#dev_buttons{
+	border:2px solid gray;
+}
+
+#dev_messages{
 	border:2px solid gray;
 }
 
 #coords{
 	border:1px solid red;
-	width:60px;
-	height:20px;
 }

@@ -1,6 +1,11 @@
+/*
+*	This file contains the shape creating and effecting functions.
+*/
 
-
-function drawCloudShape( inX,inY, inFillColor, inAlpha ){
+/*
+*	create a new cloud shape and return with it
+*/
+function shapeCreateCloud( inX,inY, inFillColor, inAlpha ){
             var cloud = new Kinetic.Shape({
             drawFunc: function() {
 				var x0  = 0;
@@ -36,4 +41,35 @@ function drawCloudShape( inX,inY, inFillColor, inAlpha ){
           });
 
     return cloud;
+}
+
+
+/*
+*	generate shadow around the cloud shape
+*	in:		cloud shape
+*	return: -
+*/
+function shapeAddCloudShadow( inCloud ){
+	inCloud.setShadow({
+		color: 'black',
+		blur: 10,
+		offset: [10, 10],
+		alpha: 0.5
+	});	
+}
+
+
+/*
+*	generate the bubble shape
+*/
+function shapeCreateBubble(){
+	var bubble	= new Kinetic.Circle({
+		x:DEFAULT_BUBBLE_X,
+		y:DEFAULT_BUBBLE_Y,
+		radius:DEFAULT_BUBBLE_RADIUS,
+		fill:"yellow",
+		stroke:"black",
+		strokeWidth:4		
+	});
+	return bubble;
 }
