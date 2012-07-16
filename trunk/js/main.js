@@ -2,7 +2,7 @@
  /*
 * Global variables
 */
-  
+
 	// Bubble parameters
 	DEFAULT_BUBBLE_X		= 150;
 	DEFAULT_BUBBLE_Y		= 150;
@@ -22,25 +22,32 @@
 	var cloudArr	= new  Array();
 	var cloudCount	= 3;
 
-	
+
 	// development (temporary) parameters
 	var	sebesseg_oszto		= 2;
 	var	irany_szorzo		= 1;
-	
 
-	
+	var programStartDate	= new Date;
+	var programStartTime	= programStartDate.getTime();
+	var lastLogT			= programStartTime;
+
+	// for measuring FPS
+	var currDateFPS = new Date;
+	var currTimeFPS	= currDateFPS.getTime();
+
+
 /*
 *	the main function
 */
 window.onload = function() {
-	
+
 	stage = new Kinetic.Stage({
 		container: 'container',
 		width: STAGE_WIDTH,
 		height: STAGE_HEIGHT
 	});
 
-	
+
 	// generate cloud layers
 	layerCloud = new Kinetic.Layer();
 	stage.add(layerCloud);
@@ -57,51 +64,35 @@ window.onload = function() {
 */
 function initClouds(){
 
-	/*	initialize the could array 
-	*		This iteration generates the next values:
-	*		- random alpha, random color, random y offset
-	*		- x coordinate, so that the clouds will be in equal distance inside the canvas (stage)
+	/*
+	*	initialize the coulds
 	*/
-	for (var i=0;i<cloudCount;i++){
-		var item  = new  Array();
-		item["x"]		= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position (equal cloud distance)
-		item["y"]		= Math.round( (Math.random()-0.5)*40 );	// random y position (offset)
-		item["color"]	= get_random_color();					// generate random color
-		item["alpha"]	= Math.random();						// alpha
-		item["scaleRnd"]	= (Math.random()-0.5)/2;			// random scaling - maximum +-25%
 
-		cloudArr[i] =  item;
-	}
-
-	
 	// generate (draw) clouds from cloudArr
-	for(var i=0;i<cloudArr.length;i++){
+	for(var i=0;i<cloudCount;i++){
+		x			= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position (equal cloud distance)
+		y			= Math.round( (Math.random()-0.5)*40 );		// random y position (offset)
+		color		= get_random_color();						// generate random color
+		alpha		= Math.random();							// alpha
+		scaleRnd	= (Math.random()-0.5)/2;					// random scaling - maximum +-25%
 
-		var cloud = shapeCreateCloud( cloudArr[i]["x"], cloudArr[i]["y"], cloudArr[i]["color"], cloudArr[i]["alpha"] );
+		var cloud 	= new ShapeCloud( x, y, color, alpha, scaleRnd );
 
-		shapeAddCloudShadow( cloud );
-		
-		layerCloud.add(cloud);
+//		cloud.addShadow();
 
-		// felho "felfujasa" letrehozaskor
-		cloud.transitionTo({
-			scale: {
-				x:0.5 + cloudArr[i]["scaleRnd"],
-				y:0.5 + cloudArr[i]["scaleRnd"]
-			},
-			easing: 'bounce-ease-out',
-			duration:2,
-			// miutan lefutott, elinditjuk a lassu usztatast
-			callback: function() {
-				cloud.transitionTo({
-					x: Math.round((Math.random()-0.5)*1000),
-					y: Math.round((Math.random()-0.5)*100),
-					duration: 200
-				});
-            }
-		});
-	
+		layerCloud.add(cloud.shape);
+
+		//store cloud in a global array
+		cloudArr[i]	= cloud;
+//		cloud.show();
 	}
+
+
+	// start the "blowing up" effect on every cloud
+	for(var i=0;i<cloudCount;i++){
+		cloudArr[i].show();
+	}
+
 
 };
 
@@ -123,12 +114,10 @@ function test_kinectanim(){
 	bubble = shapeCreateBubble();
 	layerBgCloud.add(bubble);
 
-	
-	// Kinect animation tesztelése 
+
+	// Kinect animation tesztelése
 	stage.onFrame(function(frame) {
 		frameCount++;
-		var currDateFPS = new Date;
-		var currTimeFPS	= currDateFPS.getTime();
 
 		if ((frameCount%sebesseg_oszto)==0){
 			if (CloudX > 300) {
@@ -151,10 +140,10 @@ function test_kinectanim(){
 }
 
 
-	  
+
 /*
 *	random color generator for testing
-*/	  
+*/
 function get_random_color() {
 	var letters = '0123456789ABCDEF'.split('');
 	var color = '#';
@@ -165,3 +154,17 @@ function get_random_color() {
 }
 
 
+/*
+*	log text to console
+*/
+function log( text ){
+	var currD	= new Date;
+	var currT	= currD.getTime();
+	var elapsedTimePrgStart	= (currT-programStartTime)/1000;
+	var elapsedTimeLastLog	= (currT-lastLogT)/1000;
+	var callerFunctionName	= arguments.callee.caller.name.toString();
+
+	console.log( elapsedTimePrgStart + 's: ' + callerFunctionName + ' -- ' + text + ' -- Elõzõ log óta eltelt: ' + elapsedTimeLastLog +'s');
+
+	lastLogT	= currT;
+}
