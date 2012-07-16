@@ -11,7 +11,9 @@
 			}
 		</style>
 		<script type="text/javascript" src="js/lib/kinetic-v3.10.0.js"></script>
+		<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
 		<script>
+
 			function updateDottedLines(layer) {
 				var q = layer.quad;
 
@@ -25,6 +27,17 @@
 
         quadLine.setPoints(quadPoints);
 			}
+
+      function showDottedLines(layer) {
+        var quadLine = layer.get('#quadLine')[0];
+        quadLine.setStroke('black');
+      }
+
+      function hideDottedLines(layer) {
+        var quadLine = layer.get('#quadLine')[0];
+        quadLine.setStroke('white');
+      }
+
 			function buildAnchor(layer, x, y) {
 				var anchor = new Kinetic.Circle({
 					x: x,
@@ -51,6 +64,7 @@
 				layer.add(anchor);
 				return anchor;
 			}
+
 			function drawCurves() {
 				var context = this.getContext();
 				var layer = this.getLayer();
@@ -124,25 +138,41 @@
 				  buildAnchor(layer, 80, 160)
         ];
 
-				stage.on("mouseout", function() {
-					layer.draw();
-				});
+        // layer.on("mouseout", function() {
+        //   hideDottedLines(layer);
+        //   layer.draw();
+        // });
+
+        // layer.on("mouseover", function() {
+        //   showDottedLines(layer);
+        //   layer.draw();
+        // });
+
+        $('#container').mouseout( function() {
+          hideDottedLines(layer);
+          layer.draw();
+        });
+
+        $('#container').mouseout( function() {
+          showDottedLines(layer);
+          layer.draw();
+        });
 
 				stage.add(layer);
 
-        document.getElementById('addCurve').addEventListener('click', function() {
+        $('#addCurve').click( function() {
           layer.quad.push(buildAnchor(layer, 960, 0));
           layer.quad.push(buildAnchor(layer, 960, 480));
           layer.draw();
-        }, false);
+        });
 
-        document.getElementById('removeCurve').addEventListener('click', function() {
+        $('#removeCurve').click( function() {
           layer.remove(layer.quad.pop());
           layer.remove(layer.quad.pop());
           layer.draw();
-        }, false);
+        });
 
-        document.getElementById('getCurvePoints').addEventListener('click', function() {
+        $('#getCurvePoints').click( function() {
           var strCoords = "";
           for (anchor in layer.quad) {
             if (anchor == 0) {
@@ -155,18 +185,30 @@
               strCoords += ")";
             }
           }
-          document.getElementById('curvePoints').value = strCoords;
-        }, false);
+          $('#curvePoints').value = strCoords;
+        });
 			};
 
+
+
+
+		// Peti - new JS code
+		$(document).ready( function(){
+			// set the size of the textarea depending on screen width
+			var taWidth	= $(window).width()-960-40;
+			$('#curvePoints').css( 'width', taWidth );
+		})
 		</script>
 	</head>
+
 	<body onmousedown="return false;">
-		<div id="container"></div>
-    <input type="button" id="addCurve" value="Add curve"/>
-    <input type="button" id="removeCurve" value="Remove curve"/>
-    <input type="button" id="getCurvePoints" value="Get curve points"/>
-    <br/>
-    <textarea id="curvePoints" cols="100" rows="15"></textarea>
+		<div id="container" style="position: absolute;"></div>
+		<div id="controls" style="position: fixed;bottom:2px;">
+			<input type="button" id="addCurve" value="Add curve"/>
+			<input type="button" id="removeCurve" value="Remove curve"/>
+			<input type="button" id="getCurvePoints" value="Get curve points"/>
+		</div>
+		<textarea id="curvePoints" style="width:200px; height:300px; position:fixed; right:5px;"></textarea>
 	</body>
+
 </html>
