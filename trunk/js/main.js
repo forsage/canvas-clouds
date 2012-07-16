@@ -78,7 +78,7 @@ function initClouds(){
 
 		var cloud 	= new ShapeCloud( x, y, color, alpha, scaleRnd );
 
-//		cloud.addShadow();
+		cloud.addShadow();
 
 		layerCloud.add(cloud.shape);
 
