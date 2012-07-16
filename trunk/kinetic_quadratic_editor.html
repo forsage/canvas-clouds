@@ -13,6 +13,8 @@
 		<script type="text/javascript" src="js/lib/kinetic-v3.10.0.js"></script>
 		<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
 		<script>
+      var cntAnchors = 0;
+      var idSelectedAnchor = -1;
 
 			function updateDottedLines(layer) {
 				var q = layer.quad;
@@ -30,15 +32,29 @@
 
       function showDottedLines(layer) {
         var quadLine = layer.get('#quadLine')[0];
-        quadLine.setStroke('black');
+        quadLine.show();
       }
 
       function hideDottedLines(layer) {
         var quadLine = layer.get('#quadLine')[0];
-        quadLine.setStroke('white');
+        quadLine.hide();
       }
 
-			function buildAnchor(layer, x, y) {
+      function showAnchors(layer) {
+        var q = layer.quad;
+        for (anchor in q) {
+          q[anchor].show();
+        }
+      }
+
+      function hideAnchors(layer) {
+        var q = layer.quad;
+        for (anchor in q) {
+          q[anchor].hide();
+        }
+      }
+
+			function buildAnchor(layer, x, y, idAnchor) {
 				var anchor = new Kinetic.Circle({
 					x: x,
 					y: y,
@@ -46,18 +62,22 @@
 					stroke: "#666",
 					fill: "#ddd",
 					strokeWidth: 2,
-					draggable: true
+					draggable: true,
+          visible: false, 
+          id: idAnchor
 				});
 
 				// add hover styling
 				anchor.on("mouseover", function() {
 					document.body.style.cursor = "pointer";
 					this.setStrokeWidth(4);
+          idSelectedAnchor = this.getId();
 					layer.draw();
 				});
 				anchor.on("mouseout", function() {
 					document.body.style.cursor = "default";
 					this.setStrokeWidth(2);
+          idSelectedAnchor = -1;
 					layer.draw();
 				});
 
@@ -87,13 +107,33 @@
           } else if ((anchor % 2) == 0) {
             endX = quad[anchor].attrs.x;
             endY = quad[anchor].attrs.y;
+            if (idSelectedAnchor > -1 && idSelectedAnchor == anchor) {
+              console.log('This is the selected anchor: ' + idSelectedAnchor);
+              context.strokeStyle = "red";
+              context.stroke();
+              // context.closePath();
+              // context.beginPath();
+            } else {
+              context.strokeStyle = "blue";
+              context.stroke();
+            }
             context.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
           } else {
+            if (idSelectedAnchor > -1 && idSelectedAnchor == anchor) {
+              console.log('This is the selected anchor: ' + idSelectedAnchor);
+              context.strokeStyle = "red";
+              context.stroke();
+              // context.closePath();
+              // context.beginPath();
+            } else {
+              context.strokeStyle = "blue";
+              context.stroke();
+            }
             ctrlX = quad[anchor].attrs.x;
             ctrlY = quad[anchor].attrs.y;
           }
         }
-				context.strokeStyle = "red";
+				context.strokeStyle = "blue";
 				context.lineWidth = 4;
 				context.stroke();
 			}
@@ -115,7 +155,8 @@
 					stroke: "black",
 					lineCap: "round",
 					id: "quadLine",
-					alpha: 0.3
+					alpha: 0.3, 
+          visible: false
 				});
 
 				// add dotted line connectors
@@ -133,42 +174,42 @@
 				 * they can be modified by reference
 				 */
 				layer.quad = [
-          buildAnchor(layer, 60, 30),
-				  buildAnchor(layer, 240, 110),
-				  buildAnchor(layer, 80, 160)
+          buildAnchor(layer, 60, 30, cntAnchors++),
+				  buildAnchor(layer, 240, 110, cntAnchors++),
+				  buildAnchor(layer, 80, 160, cntAnchors++)
         ];
 
-        // layer.on("mouseout", function() {
-        //   hideDottedLines(layer);
-        //   layer.draw();
-        // });
-
-        // layer.on("mouseover", function() {
-        //   showDottedLines(layer);
-        //   layer.draw();
-        // });
+				stage.on("mouseout", function() {
+					layer.draw();
+				});
 
         $('#container').mouseout( function() {
           hideDottedLines(layer);
+          hideAnchors(layer);
           layer.draw();
         });
 
-        $('#container').mouseout( function() {
+        $('#container').mouseover( function() {
           showDottedLines(layer);
+          showAnchors(layer);
           layer.draw();
         });
 
 				stage.add(layer);
 
         $('#addCurve').click( function() {
-          layer.quad.push(buildAnchor(layer, 960, 0));
-          layer.quad.push(buildAnchor(layer, 960, 480));
+          var xLast = layer.quad[layer.quad.length - 1].attrs.x;
+          var yLast = layer.quad[layer.quad.length - 1].attrs.y;
+          layer.quad.push(buildAnchor(layer, xLast + 50, yLast, cntAnchors++));
+          layer.quad.push(buildAnchor(layer, xLast + 50, yLast + 50, cntAnchors++));
           layer.draw();
         });
 
         $('#removeCurve').click( function() {
           layer.remove(layer.quad.pop());
+          cntAnchors--;
           layer.remove(layer.quad.pop());
+          cntAnchors--;
           layer.draw();
         });
 
@@ -185,17 +226,13 @@
               strCoords += ")";
             }
           }
-          $('#curvePoints').value = strCoords;
+          $('#curvePoints').val(strCoords);
         });
 			};
 
-
-
-
-		// Peti - new JS code
 		$(document).ready( function(){
 			// set the size of the textarea depending on screen width
-			var taWidth	= $(window).width()-960-40;
+			var taWidth	= $(window).width() - 960 - 40;
 			$('#curvePoints').css( 'width', taWidth );
 		})
 		</script>
@@ -203,12 +240,12 @@
 
 	<body onmousedown="return false;">
 		<div id="container" style="position: absolute;"></div>
-		<div id="controls" style="position: fixed;bottom:2px;">
+		<div id="controls" style="position: fixed; bottom: 2px;">
 			<input type="button" id="addCurve" value="Add curve"/>
 			<input type="button" id="removeCurve" value="Remove curve"/>
-			<input type="button" id="getCurvePoints" value="Get curve points"/>
+			<input type="button" id="getCurvePoints" value="Save curve"/>
 		</div>
-		<textarea id="curvePoints" style="width:200px; height:300px; position:fixed; right:5px;"></textarea>
+		<textarea id="curvePoints" style="width: 200px; height: 300px; position: fixed; right: 5px;"></textarea>
 	</body>
 
 </html>
