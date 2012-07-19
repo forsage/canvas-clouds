@@ -11,7 +11,7 @@
 /*
 *	the Cloud object
 */
-function ShapeCloud( inX,inY, inFillColor, inAlpha, inScaleRnd ){
+function ShapeCloud( inX,inY, inFillColor, inAlpha, inScaleRnd, idCloud ){
 	// variables
 	this.x			= inX;
 	this.y			= inY;
@@ -20,7 +20,7 @@ function ShapeCloud( inX,inY, inFillColor, inAlpha, inScaleRnd ){
 	this.scaleRnd	= inScaleRnd;		// to randomize the scale
 
 	// "constructor"
-	this.shape		= shapeCloudCreate( inX,inY, inFillColor, inAlpha );
+	this.shape		= shapeCloudCreate( inX,inY, inFillColor, inAlpha, idCloud );
 
 	// methods
 	this.create		= shapeCloudCreate;
@@ -51,7 +51,7 @@ function ShapeBubble(){
 /*
 *	create a new cloud shape and return with it
 */
-function shapeCloudCreate( inX,inY, inFillColor, inAlpha ){
+function shapeCloudCreate( inX,inY, inFillColor, inAlpha, idCloud ){
 	var cloud = new Kinetic.Shape({
 		drawFunc: function() {
 			var x0  = 0;
@@ -82,7 +82,8 @@ function shapeCloudCreate( inX,inY, inFillColor, inAlpha ){
 		alpha: inAlpha,
 		draggable: false,
 		x:inX,
-		y:inY
+		y:inY, 
+		id: idCloud
 	});
 
 	return cloud;
@@ -108,32 +109,38 @@ function shapeCloudAddShadow(){
 /*
 *	Showing the cloud = start effect (now: blow up effect)
 */
-function shapeCloudShow(){
-	log( 'this keresese'  + this.fillColor+this.scaleRnd );
+function shapeCloudShow() {
+	log( 'shapeCloudShow this.shape.id: '  + this.shape.getId());
+	var shapeCloud = this;
+	var shapeCallback = function(shapeCloud) {
+		log( 'shapeCallback shapeCloud.id: '  + shapeCloud.shape.getId());
+		shapeCloud.showCallback();
+	};
 	this.shape.transitionTo({
 		scale: {
 			x:0.5 + this.scaleRnd,
 			y:0.5 + this.scaleRnd
 		},
 		easing: 'bounce-ease-out',
-		duration:2
-
-
-// !!!!!!! MEGNEZNI? NEM MUUUKODIIIIKKK, mert nem lehet a callbackból kinyerni a hívó objektumról infót
-		// miutan lefutott, elinditjuk a lassu usztatast
-//		,callback: this.showCallback
+		duration:2,
+		// If used as plain variable, 'this' refers to ShapeClod object,
+		// but the callback happens at the beginning of the previous animation
+//		callback: shapeCallback(this)
+		// If used inside a function, it will happen at the end of the previous 
+		// animation, but 'this' is not the ShapeCloud object anymore.
+		// Instead, we use the local variable 'that': inside a closure we have
+		// access to the local variable even after the main function has returned
+		callback: function() { shapeCallback(shapeCloud) }
 	});
 	//alert(this);
 }
 
 
 function shapeCloudShowCallback(){
-	log( 'this keresese'  + this.x );
+	log( 'shapeCloudShowCallback this.shape.id: '  + this.shape.getId());
 	this.shape.transitionTo({
-/*		x: Math.round((Math.random()-0.5)*1000),
+		x: Math.round((Math.random()-0.5)*1000),
 		y: Math.round((Math.random()-0.5)*100),
-		*/
-		x:10,y:10,
 		duration: 2
 	});
 }
