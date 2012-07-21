@@ -81,7 +81,7 @@ main.initClouds	= function (){
 		alpha		= Math.random();							// alpha
 		scaleRnd	= (Math.random()-0.5)/2;					// random scaling - maximum +-25%
 
-		var cloud 	= new ShapeCloud( x, y, color, alpha, scaleRnd );
+		var cloud 	= new game.Cloud( x, y, color, alpha, scaleRnd );
 
 		// cloud.shape	= cloud.create();
 		cloud.addShadow();
