@@ -23,7 +23,7 @@
 	Cloud.y			= 0;
 	Cloud.fillColor	= 0;
 	Cloud.alpha		= 0;
-	Cloud.scaleRnd		= 0;			// to the scale for size randomizing
+	Cloud.scaleRnd	= 0;			// to the scale for size randomizing
 	Cloud.shape		= null;			// generated after the initialize()
 
 
@@ -91,6 +91,8 @@
 		var cloudShape	= new Shape(cloudGraphics);
 		cloudShape.x	= inX;
 		cloudShape.y	= inY;
+		cloudShape.scaleX	= inScaleRnd;
+		cloudShape.scaleY	= inScaleRnd;
 
 		return cloudShape;
 	}
