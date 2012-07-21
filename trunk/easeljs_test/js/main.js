@@ -55,15 +55,24 @@ $(document).ready( function() {
 	layerCloud	= new Container();
 
 	main.initClouds();
-
+	// stage.enableMouseOver();
 
 	// set the global ticker which used by tween.js and easeljs animations
 	Ticker.setFPS(30);
-	Ticker.addListener(stage);
+	Ticker.addListener(tick);
 
 }
 )
 
+
+//function called by the Tick instance at a set interval
+function tick()
+{
+
+	$('#FPS').val('FPS: '+ Ticker.getMeasuredFPS() );
+	//re-render the stage
+	stage.update();
+}
 
 
 var main	= new Object;
@@ -79,7 +88,7 @@ main.initClouds	= function (){
 		y			= Math.round( (Math.random()-0.5)*40 );		// random y position (offset)
 		color		= Common.getRandomColor();							// generate random color
 		alpha		= Math.random();							// alpha
-		scaleRnd	= (Math.random()-0.5)/2;					// random scaling - maximum +-25%
+		scaleRnd	= (Math.random())/2+0.5;					// random scaling - maximum +-25%
 
 		var cloud 	= new game.Cloud( x, y, color, alpha, scaleRnd );
 
@@ -102,6 +111,16 @@ main.initClouds	= function (){
 		tmpAlpha	= Math.random();
 		tweenArr[i] = Tween.get( cloudArr[i].shape );
 		tweenArr[i].to({x:170,y:50,alpha:0.1},4000, Ease.elasticInOut ).to({x:tmpX, y:tmpY, alpha:0.9},4000, Ease.bounceInOut).to( {rotation:360}, 4000, Ease.elasticInOut );
+
+
+		cloudArr[i].shape.onClick	= function(mouseEvent){ 
+				tmpStr	= " x:" + Math.round(this.x) + " y:" + Math.round(this.y) +
+							" \n skewX:" + this.skewX  + "  skewY:" + this.skewY +
+							" \n regX:" + this.regX  + "  regY:" + this.regY + 
+							" \n alpha: " + this.alpha
+							;
+				alert( tmpStr ) 
+			};
 	}
 
 	stage.addChild(layerCloud);
