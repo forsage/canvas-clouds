@@ -9,7 +9,7 @@
 */
 
 
-(function () {
+(function (namespace) {
 
 	/*
 	*	the Cloud object and constructor
@@ -73,7 +73,7 @@
 			tmpX		= Math.round((Math.random())*400);
 			tmpY		= Math.round((Math.random()-0.2)*100);
 			tmpAlpha	= Math.random();
-			cloudGraphics.beginFill( Graphics.getRGB( Common.getRandomColor(), tmpAlpha ) );
+			cloudGraphics.beginFill( Graphics.getRGB( game.common.getRandomColor(), tmpAlpha ) );
 			cloudGraphics.setStrokeStyle(1);
 			cloudGraphics.beginStroke('#fff');
 			cloudGraphics.drawCircle( 135 + tmpX, 300 + tmpY, 5 );
@@ -111,6 +111,7 @@
 
 
 
-game.Cloud	= Cloud;
+namespace.Cloud	= Cloud;
 }
-(this.game = this.game		 || {}));
+(game || (game = {})));
+var game;

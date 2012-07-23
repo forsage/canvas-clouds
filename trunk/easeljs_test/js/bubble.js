@@ -8,7 +8,7 @@
 $(document).ready( function (){
 
 	// alert('fut');
-	var testBubble	= new game.Bubble( 30, 30, Common.getRandomColor() );
+	var testBubble	= new game.Bubble( 30, 30, game.common.getRandomColor() );
 
 });
 
@@ -17,7 +17,7 @@ $(document).ready( function (){
 
 
 // this "outer/empty" function is needed becuase the inner functions, variables shouldn't generate into global namespace
-(function () {
+(function (namespace) {
 
 	var Bubble	= function ( inX, inY, inColor ){
 		this.initialize( inX, inY, inColor );
@@ -49,5 +49,6 @@ game.Bubble	= Bubble;
 
 }
 // This line will generate the game namespace if it doesn't exists.
-(this.game = this.game		 || {}));
+(game || (game	= {})));
+var game;
 

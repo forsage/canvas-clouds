@@ -1,11 +1,15 @@
+/*
+*	Common used functions
+*/
+(function(namespace){
 
-var Common	= new Object;
+var common	= new Object;
 
 
 /*
 *	random color generator for testing
 */
-Common.getRandomColor	= function ( type ) {
+common.getRandomColor	= function ( type ) {
 	var letters = '0123456789ABCDEF'.split('');
 
 	if (type=="HTML"){
@@ -23,7 +27,7 @@ Common.getRandomColor	= function ( type ) {
 /*
 *	log text to console
 */
-Common.log	= function ( text ){
+common.log	= function ( text ){
 	var currD	= new Date;
 	var currT	= currD.getTime();
 	var elapsedTimePrgStart	= (currT-programStartTime)/1000;
@@ -36,3 +40,7 @@ Common.log	= function ( text ){
 }
 
 
+namespace.common	= common;
+}
+(game || (game = {})));
+var game;
