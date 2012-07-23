@@ -54,8 +54,11 @@ $(document).ready( function() {
 	stage		= new Stage(canvas);
 	layerCloud	= new Container();
 
-	main.initClouds();
+	game.main.initClouds();
 	// stage.enableMouseOver();
+
+	var sun	= new game.Sun();
+	stage.addChild(sun.shape);
 
 	// set the global ticker which used by tween.js and easeljs animations
 	Ticker.setFPS(30);
@@ -75,59 +78,130 @@ function tick()
 }
 
 
-var main	= new Object;
+
 
 /*
-*	first time cloud generating
+*	The main object
 */
-main.initClouds	= function (){
 
-	// generate (draw) clouds from cloudArr
-	for(var i=0;i<cloudCount;i++){
-		x			= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position (equal cloud distance)
-		y			= Math.round( (Math.random()-0.5)*40 );		// random y position (offset)
-		color		= Common.getRandomColor();							// generate random color
-		alpha		= Math.random();							// alpha
-		scaleRnd	= (Math.random())/2+0.5;					// random scaling - maximum +-25%
 
-		var cloud 	= new game.Cloud( x, y, color, alpha, scaleRnd );
+(function(namespace){
+	var main	= new Object;
 
-		// cloud.shape	= cloud.create();
-		cloud.addShadow();
+	/*
+	*	first time cloud generating
+	*/
+	main.initClouds	= function (){
 
-		layerCloud.addChild(cloud.shape);
+		var offset	= cloudArr.length;
 
-		//store clouds in a global array too
-		cloudArr[i]	= cloud;
-//		cloud.show();
+		// generate (draw) clouds from cloudArr
+		for(var i=offset;i<(cloudCount+offset);i++){
+			x			= Math.round( STAGE_WIDTH/cloudCount )*i;	// x position (equal cloud distance)
+			y			= Math.round( (Math.random()-0.5)*40 );		// random y position (offset)
+			color		= game.common.getRandomColor();							// generate random color
+			alpha		= Math.random();							// alpha
+			scaleRnd	= (Math.random())/2+0.5;					// random scaling - maximum +-25%
+
+			var cloud 	= new game.Cloud( x, y, color, alpha, scaleRnd );
+
+			// cloud.shape	= cloud.create();
+			cloud.addShadow();
+
+			layerCloud.addChild(cloud.shape);
+
+			//store clouds in a global array too
+			cloudArr[i]	= cloud;
+	//		cloud.show();
+		}
+
+		// start the effects on every cloud
+		var tweenArr	= Array();
+		var tmpX,tmpY		= 0;
+		for(var i=offset;i<(cloudCount+offset);i++){
+			tmpX		= Math.round((Math.random())*1000)-200;
+			tmpY		= Math.round((Math.random()-0.2)*10);
+			tmpAlpha	= Math.random();
+			tweenArr[i] = Tween.get( cloudArr[i].shape );
+			tweenArr[i].to({x:170,y:50,alpha:0.1},4000, Ease.elasticInOut ).to({x:tmpX, y:tmpY, alpha:0.9},4000, Ease.bounceInOut).to( {rotation:360}, 4000, Ease.elasticInOut );
+
+
+			// show information about cloud
+			cloudArr[i].shape.onClick	= function(mouseEvent){ 
+					tmpStr	= " x:" + Math.round(this.x) + " y:" + Math.round(this.y) +
+								" \n skewX:" + this.skewX  + "  skewY:" + this.skewY +
+								" \n regX:" + this.regX  + "  regY:" + this.regY + 
+								" \n alpha: " + this.alpha + 
+								" \n color: "
+								;
+					alert( tmpStr ) 
+				};
+
+
+
+
+			// add simple drag'n drop to every cloud shape
+			(function (target){
+				cloudArr[i].shape.onPress	= function(evt){
+					var offset = {x:target.x-evt.stageX, y:target.y-evt.stageY};
+
+					// add a handler to the event object's onMouseMove callback
+					// this will be active until the user releases the mouse button:
+					evt.onMouseMove = function(ev) {
+						target.x = ev.stageX+offset.x;
+						target.y = ev.stageY+offset.y;
+						// indicate that the stage should be updated on the next tick:
+						update = true;
+					}
+				}
+				cloudArr[i].shape.onMouseOver = function() {
+					target.scaleX = target.scaleY = target.scale*1.2;
+					update = true;
+				}
+				cloudArr[i].shape.onMouseOut = function() {
+					target.scaleX = target.scaleY = target.scale;
+					update = true;
+				}
+			})(cloudArr[i].shape)
+
+		}
+
+		stage.addChild(layerCloud);
+
+		stage.update();
+
+	}	// end main.initClouds
+
+
+
+	/*
+	*	Cache testing:
+	*	Add cache to every cloud shape;
+	*	Comment: The caching will be slow if the cached graphic is too big. 
+	*/
+	main.turnOnCache	= function( sizeX, sizeY ){
+		// set the defult size
+		if (sizeX==0){
+			sizeX=300;
+			sizeY=180;
+		}
+
+		for  ( var i=0; i<cloudArr.length; i++){
+			//turn on the cache
+			cloudArr[i].shape.cache(130,110,sizeX,sizeY);					// NA EZÉRT SZÍVÁS A DEFAULT FELHŐ OFFSET
+		}
 	}
 
-	// start the effects on every cloud
-	var tweenArr	= Array();
-	var tmpX,tmpY		= 0;
-	for(var i=0;i<cloudCount;i++){
-		tmpX		= Math.round((Math.random())*1000)-200;
-		tmpY		= Math.round((Math.random()-0.2)*10);
-		tmpAlpha	= Math.random();
-		tweenArr[i] = Tween.get( cloudArr[i].shape );
-		tweenArr[i].to({x:170,y:50,alpha:0.1},4000, Ease.elasticInOut ).to({x:tmpX, y:tmpY, alpha:0.9},4000, Ease.bounceInOut).to( {rotation:360}, 4000, Ease.elasticInOut );
 
+	main.turnOffCache	= function(){
 
-		cloudArr[i].shape.onClick	= function(mouseEvent){ 
-				tmpStr	= " x:" + Math.round(this.x) + " y:" + Math.round(this.y) +
-							" \n skewX:" + this.skewX  + "  skewY:" + this.skewY +
-							" \n regX:" + this.regX  + "  regY:" + this.regY + 
-							" \n alpha: " + this.alpha
-							;
-				alert( tmpStr ) 
-			};
+		for  ( var i=0; i<cloudArr.length; i++){
+			//turn on the cache
+			cloudArr[i].shape.uncache();
+		}
 	}
 
-	stage.addChild(layerCloud);
 
-	stage.update();
-
-};
-
-
-
+namespace.main	= main;
+}(game || (game = {})));
+var game;

@@ -11,9 +11,10 @@
 	<script src="../js/lib/jquery-1.7.2.min.js"></script>
 
 	<script src="js/main.js"></script>
-	<script src="js/shapes.js"></script>
+	<script src="js/cloud.js"></script>
 	<script src="js/common.js"></script>
 	<script src="js/bubble.js"></script>
+	<script src="js/sun.js"></script>
 
 
 </head>
@@ -27,8 +28,11 @@
 	<div id="dev">
 	
 		<div id="dev_buttons">
-			<input type="button" id="go" value="Felhõt!" onClick="main.initClouds();"><br>
-			<input type="button" id="Test" value="Teszt - Felhő coord" onClick="alert( cloudArr[0].x );"><br>
+			<input type="button" id="go" value="Felhõt!" onClick="game.main.initClouds();"><br>
+			<input type="button" style="width:150px;" value="Cache On 300x180px" onClick="game.main.turnOnCache(300,180);"><br>
+			<input type="button" style="width:150px;" value="Cache On 300x300px" onClick="game.main.turnOnCache(300,300);"><br>
+			<input type="button" style="width:150px;" value="Cache On 100x100px" onClick="game.main.turnOnCache(100,100);"><br>
+			<input type="button" id="" value="Cache Off" onClick="game.main.turnOffCache();"><br>
 			<!-- <input type="button" value="anim_test" onClick="test_kinectanim();"><br> -->
 			<!-- <input type="button" value="teszt" onClick="$('#c2').val( 'FPS: ' + animStartTimeFPS ); "> <br> -->
 
