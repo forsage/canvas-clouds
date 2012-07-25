@@ -73,7 +73,7 @@
 			tmpX		= Math.round((Math.random())*400);
 			tmpY		= Math.round((Math.random()-0.2)*100);
 			tmpAlpha	= Math.random();
-			cloudGraphics.beginFill( Graphics.getRGB( game.common.getRandomColor(), tmpAlpha ) );
+			cloudGraphics.beginFill( 'Graphics.getRGB( game.common.getRandomColor(), tmpAlpha )' );
 			cloudGraphics.setStrokeStyle(1);
 			cloudGraphics.beginStroke('#fff');
 			cloudGraphics.drawCircle( 135 + tmpX, 300 + tmpY, 5 );
