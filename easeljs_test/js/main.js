@@ -60,6 +60,10 @@ $(document).ready( function() {
 	var sun	= new game.Sun();
 	stage.addChild(sun.shape);
 
+
+	game.main.havacska();
+
+
 	// set the global ticker which used by tween.js and easeljs animations
 	Ticker.setFPS(30);
 	Ticker.addListener(tick);
@@ -171,6 +175,43 @@ function tick()
 		stage.update();
 
 	}	// end main.initClouds
+
+
+
+	main.havacska	= function(){
+		for(var i=0;i<100;i++){
+
+			var g		= new Graphics;
+			var x		= Math.round(Math.random()*1000);
+			// var y		= Math.round(Math.random()*500);
+			var y		= -10;
+			var size	= Math.round(Math.random()*10)+1;
+			var wait	= Math.round(Math.random()*3000);
+			var time	= Math.round( 10000/(size/2) );		// minel nagyobb, annal gyorsabban essen le
+
+			var randomYOffset	= Math.round(Math.random()*-30);
+
+
+			g.beginFill( Graphics.getRGB( '0xFFFFFF', 1/size ) );
+			g.setStrokeStyle(1);
+			g.beginStroke('#fff');
+			g.drawCircle( 0, 0, size );
+			g.endStroke();
+
+
+			var s	= new Shape(g);
+			s.x	= x;
+			s.y	= y;
+			s.cache(-1*size,-1*size,size*2,size*2);
+
+			tween = Tween.get( s );
+			tween.wait(wait).to({y:(400+randomYOffset)},time, Ease.bounceOut );
+
+			tween.loop=true;
+
+			stage.addChild(s);
+		}
+	}
 
 
 
