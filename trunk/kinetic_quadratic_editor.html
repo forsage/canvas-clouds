@@ -103,7 +103,6 @@
 				// draw quad
 				///////////////////////////////
 				var quad = layer.quad;
-				var bezier = layer.bezier;
 
 				// draw quad
 				context.beginPath();
@@ -118,7 +117,6 @@
             endX = quad[anchor].attrs.x;
             endY = quad[anchor].attrs.y;
             if (idSelectedAnchor > -1 && idSelectedAnchor == anchor) {
-              console.log('This is the selected anchor: ' + idSelectedAnchor);
               context.strokeStyle = "red";
               context.stroke();
               // context.closePath();
@@ -148,7 +146,6 @@
 			}
 
       function getNextCoords(xLast, yLast) {
-        console.log('getNextCoords(xLast=' + xLast + ', yLast=' + yLast + ', dirAddPoint=' + dirAddPoint);
         var xNext, yNext, xRefNext, yRefNext = -1;
         // First, go for the new direction in case the next coords would be outside of canvas
         switch (dirAddPoint) {
@@ -288,9 +285,9 @@
 				 * they can be modified by reference
 				 */
 				layer.quad = [
-          buildAnchor(layer, 60, 30, cntAnchors++),
-				  buildAnchor(layer, 240, 110, cntAnchors++),
-				  buildAnchor(layer, 80, 160, cntAnchors++)
+          buildAnchor(layer, 50, 50, cntAnchors++),
+				  buildAnchor(layer, 100, 50, cntAnchors++),
+				  buildAnchor(layer, 100, 100, cntAnchors++)
         ];
 
 				stage.on("mouseout", function() {
@@ -357,6 +354,49 @@
             }
           }
           $('#curvePoints').val(strCoords);
+        });
+
+        $('#loadCurve').click( function() {
+          var jsonStr = $('#curvePoints').val();
+          if (jsonStr == '') {
+            console.log('There are no curve points defined. Cannot load.');
+            return;
+          }
+          console.log('jsonStr: ' + jsonStr);
+          try {
+            var cloudData = jQuery.parseJSON(jsonStr);
+          } catch (se) {
+            // pass
+            console.log('The curve points defined are syntactically not correct. Cannot load.');
+            return;
+          }
+          if (cloudData == null || !("moveTo" in cloudData) || !("quadraticCurveTo" in cloudData)) {
+            console.log('The curve points defined are semantically not correct. Cannot load.');
+            return;
+          }
+
+          // Remove old points first from canvas
+          lenQuad = layer.quad.length;
+          for (ixQuad = 0; ixQuad < lenQuad; ixQuad++) {
+            layer.remove(layer.quad.pop());
+            cntAnchors--;
+          }
+
+          // Then, add new points to canvas
+          var cntPoints = cloudData["quadraticCurveTo"].length * 2 + 1;
+          layer.quad.push(buildAnchor(layer, cloudData["moveTo"]["x"], cloudData["moveTo"]["y"], cntAnchors++));
+          for (var keyCoords in cloudData["quadraticCurveTo"]) {
+            var valCoords = cloudData["quadraticCurveTo"][keyCoords];
+            var xNext = valCoords["x"];
+            var yNext = valCoords["y"];
+            var xRefNext = valCoords["ref_x"];
+            var yRefNext = valCoords["ref_y"];
+            layer.quad.push(buildAnchor(layer, xRefNext, yRefNext, cntAnchors++));
+            layer.quad.push(buildAnchor(layer, xNext, yNext, cntAnchors++));
+          }
+
+          // Redraw layer
+          layer.draw();
         });
 			};
 
