@@ -1,0 +1,1 @@
+This is a project that demonstrates some of jCanvas / HTML5 canvas possibilities
